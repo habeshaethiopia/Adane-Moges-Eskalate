@@ -2,6 +2,8 @@
 
 A RESTful API for managing a personal movie collection. This project allows users to create accounts, authenticate, and manage their movie collections with features like creating, updating, deleting, and searching movies.
 
+**The deployed version of the API is available at [https://adane-moges-eskalate.onrender.com](https://adane-moges-eskalate.onrender.com)**
+
 ## Technology Choices
 
 - **Go (Golang)**: Chosen for its excellent performance, strong standard library, and great support for building concurrent web services.

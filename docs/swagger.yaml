@@ -17,6 +17,7 @@ definitions:
       email:
         type: string
       password:
+        minLength: 8
         type: string
     required:
     - email
