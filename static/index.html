@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eskalate Movie API Documentation</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Eskalate Movie API</h1>
+            <p class="description">REST API for a personal movie collection</p>
+        </header>
+
+        <main>
+            <section class="endpoints">
+                <h2>Available Endpoints</h2>
+                
+                <div class="endpoint-group">
+                    <h3>Authentication</h3>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="path">/api/auth/login</span>
+                        <p>Login with email and password</p>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="path">/api/auth/signup</span>
+                        <p>Register a new user with email, username, and password</p>
+                    </div>
+                </div>
+
+                <div class="endpoint-group">
+                    <h3>Movies</h3>
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="path">/api/movies</span>
+                        <p>Get a paginated list of movies</p>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="path">/api/movies</span>
+                        <p>Create a new movie (auth required)</p>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="path">/api/movies/search</span>
+                        <p>Search movies by title (case-insensitive)</p>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="path">/api/movies/{id}</span>
+                        <p>Get details for a single movie by ID</p>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method put">PUT</span>
+                        <span class="path">/api/movies/{id}</span>
+                        <p>Update a movie (auth required, must own movie)</p>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method delete">DELETE</span>
+                        <span class="path">/api/movies/{id}</span>
+                        <p>Delete a movie (auth required, must own movie)</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="api-docs">
+                <h2>API Documentation</h2>
+                <p>For detailed API documentation, visit the <a href="/swagger/index.html">Swagger Documentation</a></p>
+            </section>
+        </main>
+
+        <footer>
+            <p>© 2024 Eskalate Movie API. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html> 

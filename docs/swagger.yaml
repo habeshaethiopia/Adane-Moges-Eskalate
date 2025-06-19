@@ -1,0 +1,439 @@
+basePath: /
+definitions:
+  handlers.BaseResponse:
+    properties:
+      errors:
+        items:
+          type: string
+        type: array
+      message:
+        type: string
+      object: {}
+      success:
+        type: boolean
+    type: object
+  handlers.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  handlers.LogoutRequest:
+    properties:
+      refreshToken:
+        type: string
+    required:
+    - refreshToken
+    type: object
+  handlers.PaginatedResponse:
+    properties:
+      errors:
+        items:
+          type: string
+        type: array
+      message:
+        type: string
+      object: {}
+      pageNumber:
+        type: integer
+      pageSize:
+        type: integer
+      success:
+        type: boolean
+      totalSize:
+        type: integer
+    type: object
+  handlers.RefreshRequest:
+    properties:
+      refreshToken:
+        type: string
+    required:
+    - refreshToken
+    type: object
+  handlers.SignupRequest:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 8
+        type: string
+      username:
+        maxLength: 20
+        minLength: 3
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: REST API for a personal movie collection
+  title: Eskalate Movie API
+  version: "1.0"
+paths:
+  /api/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login with email and password
+      parameters:
+      - description: Login request
+        in: body
+        name: loginRequest
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.BaseResponse'
+      summary: Login a user
+      tags:
+      - auth
+  /api/auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Revoke a refresh token (logout)
+      parameters:
+      - description: Logout request
+        in: body
+        name: logoutRequest
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.LogoutRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.BaseResponse'
+      security:
+      - BearerAuth: []
+      summary: Logout (revoke refresh token)
+      tags:
+      - auth
+  /api/auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Get a new access token using a valid refresh token
+      parameters:
+      - description: Refresh token request
+        in: body
+        name: refreshRequest
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.RefreshRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.BaseResponse'
+      security:
+      - BearerAuth: []
+      summary: Refresh access token
+      tags:
+      - auth
+  /api/auth/signup:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with email, username, and password
+      parameters:
+      - description: Signup request
+        in: body
+        name: signupRequest
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.SignupRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handlers.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.BaseResponse'
+      summary: Register a new user
+      tags:
+      - auth
+  /api/movies:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of movies
+      parameters:
+      - description: Page number
+        in: query
+        name: pageNumber
+        type: integer
+      - description: Page size
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.PaginatedResponse'
+      summary: Get all movies
+      tags:
+      - movies
+    post:
+      consumes:
+      - multipart/form-data
+      description: Create a new movie (auth required)
+      parameters:
+      - description: Title
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Description
+        in: formData
+        name: description
+        required: true
+        type: string
+      - collectionFormat: csv
+        description: Genres
+        in: formData
+        items:
+          type: string
+        name: genres
+        required: true
+        type: array
+      - collectionFormat: csv
+        description: Actors
+        in: formData
+        items:
+          type: string
+        name: actors
+        required: true
+        type: array
+      - description: Trailer URL
+        in: formData
+        name: trailerUrl
+        required: true
+        type: string
+      - description: Poster
+        in: formData
+        name: poster
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handlers.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.BaseResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new movie
+      tags:
+      - movies
+  /api/movies/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a movie (auth required, must own movie)
+      parameters:
+      - description: Movie ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.BaseResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.BaseResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a movie
+      tags:
+      - movies
+    get:
+      consumes:
+      - application/json
+      description: Get details for a single movie by ID
+      parameters:
+      - description: Movie ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.BaseResponse'
+      summary: Get movie details
+      tags:
+      - movies
+    put:
+      consumes:
+      - multipart/form-data
+      description: Update a movie (auth required, must own movie)
+      parameters:
+      - description: Movie ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Title
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Description
+        in: formData
+        name: description
+        required: true
+        type: string
+      - collectionFormat: csv
+        description: Genres
+        in: formData
+        items:
+          type: string
+        name: genres
+        required: true
+        type: array
+      - collectionFormat: csv
+        description: Actors
+        in: formData
+        items:
+          type: string
+        name: actors
+        required: true
+        type: array
+      - description: Trailer URL
+        in: formData
+        name: trailerUrl
+        required: true
+        type: string
+      - description: Poster
+        in: formData
+        name: poster
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.BaseResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.BaseResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a movie
+      tags:
+      - movies
+  /api/movies/search:
+    get:
+      consumes:
+      - application/json
+      description: Search movies by title (case-insensitive)
+      parameters:
+      - description: Title substring
+        in: query
+        name: title
+        type: string
+      - description: Page number
+        in: query
+        name: pageNumber
+        type: integer
+      - description: Page size
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.PaginatedResponse'
+      summary: Search movies by title
+      tags:
+      - movies
+securityDefinitions:
+  BearerAuth:
+    description: Enter the token with the `Bearer ` prefix, e.g. "Bearer abcde12345"
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

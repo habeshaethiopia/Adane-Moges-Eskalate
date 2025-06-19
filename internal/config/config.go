@@ -31,3 +31,4 @@ func LoadConfig() *Config {
 		Port:                os.Getenv("PORT"),
 	}
 }
+

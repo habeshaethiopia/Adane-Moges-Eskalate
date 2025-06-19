@@ -32,24 +32,35 @@ func NewAuthService(userRepo repository.UserRepository, db *gorm.DB) AuthService
 }
 
 func (s *authService) Signup(user *models.User) error {
+	log.Printf("Starting signup process for email: %s", user.Email)
+
 	if _, err := s.userRepo.FindByEmail(user.Email); err == nil {
+		log.Printf("Email already exists: %s", user.Email)
 		return errors.New("email already exists")
 	}
 	if _, err := s.userRepo.FindByUsername(user.Username); err == nil {
+		log.Printf("Username already exists: %s", user.Username)
 		return errors.New("username already exists")
 	}
 
-	// Hash the password with a cost of 10
-	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
+	log.Printf("Original password length: %d", len(user.Password))
+	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		log.Printf("Error hashing password: %v", err)
 		return err
 	}
-	log.Printf("Original password: %s", user.Password)
-	log.Printf("Generated hash: %s", string(hash))
+	log.Printf("Generated hash length: %d", len(hash))
 
 	user.Password = string(hash)
-	return s.userRepo.Create(user)
+	log.Printf("Final stored password hash length: %d", len(user.Password))
+
+	if err := s.userRepo.Create(user); err != nil {
+		log.Printf("Error creating user: %v", err)
+		return err
+	}
+
+	log.Printf("User created successfully with ID: %s", user.ID)
+	return nil
 }
 
 func (s *authService) Login(email, password, jwtSecret string) (string, error) {
@@ -73,15 +84,17 @@ func (s *authService) Login(email, password, jwtSecret string) (string, error) {
 }
 
 func (s *authService) LoginWithRefresh(email, password, jwtSecret string) (string, string, error) {
+	log.Printf("Login attempt for email: %s", email)
+
 	user, err := s.userRepo.FindByEmail(email)
 	if err != nil {
 		log.Printf("User not found with email: %s", email)
 		return "", "", errors.New("invalid credentials")
 	}
 
-	log.Printf("Login attempt - Email: %s", email)
-	log.Printf("Stored hash: %s", user.Password)
-	log.Printf("Provided password: %s", password)
+	log.Printf("Found user with ID: %s", user.ID)
+	log.Printf("Stored password hash length: %d", len(user.Password))
+	log.Printf("Provided password length: %d", len(password))
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {

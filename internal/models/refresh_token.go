@@ -2,6 +2,7 @@ package models
 
 import (
 	"time"
+
 	"github.com/google/uuid"
 )
 
@@ -12,4 +13,4 @@ type RefreshToken struct {
 	ExpiresAt time.Time `gorm:"not null" json:"expiresAt"`
 	Revoked   bool      `gorm:"not null;default:false" json:"revoked"`
 	CreatedAt time.Time `json:"createdAt"`
-} 
+}

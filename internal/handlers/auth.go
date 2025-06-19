@@ -41,6 +41,33 @@ func RegisterAuthRoutes(rg *gin.RouterGroup, authService services.AuthService, c
 	rg.POST("/login", Login(authService, cfg))
 	rg.POST("/refresh", RefreshToken(authService, cfg))
 	rg.POST("/logout", Logout(authService))
+
+	// Debug endpoint - REMOVE IN PRODUCTION
+	rg.GET("/debug/:email", func(c *gin.Context) {
+		email := c.Param("email")
+		user, err := authService.GetUserByEmail(email)
+		if err != nil {
+			c.JSON(http.StatusNotFound, BaseResponse{
+				Success: false,
+				Message: "User not found",
+				Errors:  []string{err.Error()},
+			})
+			return
+		}
+		c.JSON(http.StatusOK, BaseResponse{
+			Success: true,
+			Message: "User found",
+			Object: gin.H{
+				"id":            user.ID,
+				"email":         user.Email,
+				"username":      user.Username,
+				"password_hash": user.Password,
+				"password_len":  len(user.Password),
+				"created_at":    user.CreatedAt,
+				"updated_at":    user.UpdatedAt,
+			},
+		})
+	})
 }
 
 // Signup godoc

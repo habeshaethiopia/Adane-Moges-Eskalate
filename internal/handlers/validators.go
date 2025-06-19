@@ -15,10 +15,31 @@ func RegisterCustomValidators(v *validator.Validate) {
 
 func validatePassword(fl validator.FieldLevel) bool {
 	password := fl.Field().String()
-	// At least 8 chars, 1 special, 1 upper, 1 lower
-	pattern := `^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()]).{8,}$`
-	matched, _ := regexp.MatchString(pattern, password)
-	return matched
+
+	// Check minimum length
+	if len(password) < 8 {
+		return false
+	}
+
+	// Check for at least one uppercase letter
+	hasUpper := regexp.MustCompile(`[A-Z]`).MatchString(password)
+	if !hasUpper {
+		return false
+	}
+
+	// Check for at least one lowercase letter
+	hasLower := regexp.MustCompile(`[a-z]`).MatchString(password)
+	if !hasLower {
+		return false
+	}
+
+	// Check for at least one special character
+	hasSpecial := regexp.MustCompile(`[!@#$%^&*()]`).MatchString(password)
+	if !hasSpecial {
+		return false
+	}
+
+	return true
 }
 
 func validateYouTubeURL(fl validator.FieldLevel) bool {
