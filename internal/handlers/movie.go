@@ -19,7 +19,7 @@ type MovieRequest struct {
 	Description string   `form:"description" binding:"required,min=10,max=1000"`
 	Genres      []string `form:"genres" binding:"required"`
 	Actors      []string `form:"actors" binding:"required"`
-	Trailer     string   `form:"trailerUrl" binding:"required,youtubeurl"`
+	Trailer     string   `form:"trailerUrl" binding:"required"`
 }
 
 // RegisterMovieRoutes registers movie endpoints

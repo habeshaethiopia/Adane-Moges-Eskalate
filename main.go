@@ -4,13 +4,15 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
 	_ "eskalate-movie-api/docs"
 	"eskalate-movie-api/internal/config"
-	"eskalate-movie-api/internal/models"
+	"eskalate-movie-api/internal/handlers"
 	"eskalate-movie-api/internal/routes"
 )
 
@@ -37,11 +39,16 @@ func main() {
 		logrus.Fatalf("failed to connect to database: %v", err)
 	}
 
+	// Register custom validators globally for Gin
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		handlers.RegisterCustomValidators(v)
+	}
+
 	// Enable uuid-ossp extension
 	db.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`)
 
 	// Auto-migrate models
-	db.AutoMigrate(&models.User{}, &models.Movie{}, &models.RefreshToken{})
+	db.AutoMigrate()
 
 	r := gin.Default()
 
