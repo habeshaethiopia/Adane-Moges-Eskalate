@@ -20,6 +20,8 @@ type AuthService interface {
 	LoginWithRefresh(email, password, jwtSecret string) (string, string, error)
 	RefreshAccessToken(refreshToken, jwtSecret string) (string, error)
 	RevokeRefreshToken(refreshToken string) error
+	GetUserByEmail(email string) (*models.User, error)
+
 }
 
 type authService struct {
@@ -178,4 +180,7 @@ func (s *authService) RefreshAccessToken(refreshToken, jwtSecret string) (string
 
 func (s *authService) RevokeRefreshToken(refreshToken string) error {
 	return s.db.Model(&models.RefreshToken{}).Where("token = ?", refreshToken).Update("revoked", true).Error
+}
+func (s *authService) GetUserByEmail(email string) (*models.User, error) {
+	return s.userRepo.FindByEmail(email)
 }
